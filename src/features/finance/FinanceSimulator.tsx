@@ -48,7 +48,10 @@ export const FinanceSimulator = ({
 }: Props) => {
   const [saveName, setSaveName] = useState('')
   const [preset, setPreset] = useState<'conservative' | 'base' | 'optimistic'>('base')
+  const [candidateEnabled, setCandidateEnabled] = useState(false)
+  const [candidateInput, setCandidateInput] = useState<FinanceInputParams>(input)
   const result = useMemo(() => simulateFinance(input), [input])
+  const candidateResult = useMemo(() => simulateFinance(candidateInput), [candidateInput])
   const monteCarlo = useMemo(
     () =>
       input.monteCarloEnabled
@@ -84,6 +87,7 @@ export const FinanceSimulator = ({
   const milestone50 = result.base.timeline.find((point) => point.metrics.value >= input.targetFinalValue * 0.5)
   const milestone75 = result.base.timeline.find((point) => point.metrics.value >= input.targetFinalValue * 0.75)
   const riskProbability = monteCarlo ? monteCarlo.successProbability : targetGap >= 0 ? 1 : 0
+  const candidateDelta = candidateResult.base.summary.finalValue - result.base.summary.finalValue
 
   return (
     <section className="space-y-4">
@@ -170,6 +174,48 @@ export const FinanceSimulator = ({
               checked={compareScenarios}
               onChange={onToggleCompare}
             />
+          </div>
+
+          <div className="space-y-3 border-t border-border pt-3">
+            <Toggle
+              label="Compare current vs candidate"
+              checked={candidateEnabled}
+              onChange={setCandidateEnabled}
+            />
+            {candidateEnabled ? (
+              <>
+                <NumberStepper
+                  label="Candidate contribution"
+                  value={candidateInput.monthlyContribution}
+                  onChange={(value) => setCandidateInput((prev) => ({ ...prev, monthlyContribution: value }))}
+                  min={0}
+                  step={50}
+                />
+                <SliderField
+                  label="Candidate return"
+                  value={candidateInput.annualReturnRate}
+                  onChange={(value) => setCandidateInput((prev) => ({ ...prev, annualReturnRate: value }))}
+                  min={0}
+                  max={30}
+                  step={0.5}
+                  suffix="%"
+                />
+                <NumberStepper
+                  label="Candidate years"
+                  value={candidateInput.years}
+                  onChange={(value) => setCandidateInput((prev) => ({ ...prev, years: value }))}
+                  min={1}
+                  max={50}
+                />
+                <button
+                  type="button"
+                  onClick={() => setCandidateInput(input)}
+                  className="rounded-xl border border-border bg-bg px-3 py-2 text-xs text-muted"
+                >
+                  Use current as candidate
+                </button>
+              </>
+            ) : null}
           </div>
 
           <div className="space-y-3 border-t border-border pt-3">
@@ -290,6 +336,21 @@ export const FinanceSimulator = ({
             <p>50% target: {milestone50 ? `${(milestone50.t / 12).toFixed(1)} years` : 'Not reached'}</p>
             <p>75% target: {milestone75 ? `${(milestone75.t / 12).toFixed(1)} years` : 'Not reached'}</p>
           </article>
+
+          {candidateEnabled ? (
+            <article className="rounded-2xl border border-border bg-surface p-4 shadow-soft">
+              <p className="text-sm font-medium text-text">Current vs Candidate</p>
+              <div className="mt-3 grid gap-3 md:grid-cols-3">
+                <SummaryCard label="Current final" value={currency(result.base.summary.finalValue)} />
+                <SummaryCard label="Candidate final" value={currency(candidateResult.base.summary.finalValue)} />
+                <SummaryCard
+                  label="Delta"
+                  value={currency(candidateDelta)}
+                  tone={candidateDelta >= 0 ? 'positive' : 'negative'}
+                />
+              </div>
+            </article>
+          ) : null}
 
           <article className="h-[330px] rounded-2xl border border-border bg-surface p-4 shadow-soft">
             <p className="mb-3 text-sm text-muted">Portfolio value over time</p>

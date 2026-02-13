@@ -50,8 +50,11 @@ export const TimeRoiSimulator = ({
 }: Props) => {
   const [saveName, setSaveName] = useState('')
   const [preset, setPreset] = useState<'learning' | 'fitness' | 'language' | 'side'>('learning')
+  const [candidateEnabled, setCandidateEnabled] = useState(false)
+  const [candidateInput, setCandidateInput] = useState<TimeRoiInputParams>(input)
 
   const result = useMemo(() => simulateTimeRoi(input), [input])
+  const candidateResult = useMemo(() => simulateTimeRoi(candidateInput), [candidateInput])
   const defaults = getTimeRoiDefaults()
 
   const changedFields = Object.entries(input)
@@ -66,6 +69,7 @@ export const TimeRoiSimulator = ({
     conservative: result.conservative.timeline[index]?.metrics.saved ?? point.metrics.saved,
     optimistic: result.optimistic.timeline[index]?.metrics.saved ?? point.metrics.saved
   }))
+  const candidateNetDelta = candidateResult.base.summary.netTimeRoi - result.base.summary.netTimeRoi
 
   return (
     <section className="space-y-4">
@@ -116,6 +120,48 @@ export const TimeRoiSimulator = ({
             max={50}
             suffix="%"
           />
+
+          <div className="space-y-3 border-t border-border pt-3">
+            <Toggle
+              label="Compare current vs candidate"
+              checked={candidateEnabled}
+              onChange={setCandidateEnabled}
+            />
+            {candidateEnabled ? (
+              <>
+                <NumberStepper
+                  label="Candidate minutes/day"
+                  value={candidateInput.dailyMinutes}
+                  onChange={(value) => setCandidateInput((prev) => ({ ...prev, dailyMinutes: value }))}
+                  min={5}
+                  max={360}
+                  step={5}
+                />
+                <SliderField
+                  label="Candidate skip rate"
+                  value={candidateInput.skipRate}
+                  onChange={(value) => setCandidateInput((prev) => ({ ...prev, skipRate: value }))}
+                  min={0}
+                  max={50}
+                  suffix="%"
+                />
+                <NumberStepper
+                  label="Candidate duration (weeks)"
+                  value={candidateInput.durationWeeks}
+                  onChange={(value) => setCandidateInput((prev) => ({ ...prev, durationWeeks: value }))}
+                  min={1}
+                  max={260}
+                />
+                <button
+                  type="button"
+                  onClick={() => setCandidateInput(input)}
+                  className="rounded-xl border border-border bg-bg px-3 py-2 text-xs text-muted"
+                >
+                  Use current as candidate
+                </button>
+              </>
+            ) : null}
+          </div>
 
           <div className="space-y-3 border-t border-border pt-3">
             <p className="text-sm font-medium text-muted">Presets</p>
@@ -268,6 +314,21 @@ export const TimeRoiSimulator = ({
               metricKey="totalHoursInvested"
               format={(value) => `${decimal(value)} h`}
             />
+          ) : null}
+
+          {candidateEnabled ? (
+            <article className="rounded-2xl border border-border bg-surface p-4 shadow-soft">
+              <p className="text-sm font-medium text-text">Current vs Candidate</p>
+              <div className="mt-3 grid gap-3 md:grid-cols-3">
+                <SummaryCard label="Current ROI" value={`${decimal(result.base.summary.netTimeRoi)} h`} />
+                <SummaryCard label="Candidate ROI" value={`${decimal(candidateResult.base.summary.netTimeRoi)} h`} />
+                <SummaryCard
+                  label="Delta"
+                  value={`${decimal(candidateNetDelta)} h`}
+                  tone={candidateNetDelta >= 0 ? 'positive' : 'negative'}
+                />
+              </div>
+            </article>
           ) : null}
         </div>
       </div>
