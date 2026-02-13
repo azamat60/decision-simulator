@@ -88,6 +88,30 @@ export const FinanceSimulator = ({
   const milestone75 = result.base.timeline.find((point) => point.metrics.value >= input.targetFinalValue * 0.75)
   const riskProbability = monteCarlo ? monteCarlo.successProbability : targetGap >= 0 ? 1 : 0
   const candidateDelta = candidateResult.base.summary.finalValue - result.base.summary.finalValue
+  const sensitivityRates = [-2, -1, 0, 1, 2]
+  const sensitivityContributions = [-200, -100, 0, 100, 200]
+  const heatmap = useMemo(
+    () =>
+      sensitivityRates.map((rateShift) =>
+        sensitivityContributions.map((contributionShift) => {
+          const shifted = {
+            ...input,
+            annualReturnRate: Math.min(30, Math.max(0, input.annualReturnRate + rateShift)),
+            monthlyContribution: Math.max(0, input.monthlyContribution + contributionShift)
+          }
+          return simulateFinance(shifted).base.summary.finalValue
+        })
+      ),
+    [input]
+  )
+  const allHeatValues = heatmap.flat()
+  const heatMin = Math.min(...allHeatValues)
+  const heatMax = Math.max(...allHeatValues)
+  const heatColor = (value: number): string => {
+    const normalized = heatMax > heatMin ? (value - heatMin) / (heatMax - heatMin) : 0.5
+    const hue = 210 - normalized * 120
+    return `hsl(${hue}, 80%, ${30 + normalized * 30}%)`
+  }
 
   return (
     <section className="space-y-4">
@@ -351,6 +375,32 @@ export const FinanceSimulator = ({
               </div>
             </article>
           ) : null}
+
+          <article className="rounded-2xl border border-border bg-surface p-4 shadow-soft">
+            <p className="text-sm font-medium text-text">Sensitivity heatmap</p>
+            <p className="mt-1 text-xs text-muted">Rows: return rate shift, Columns: monthly contribution shift</p>
+            <div className="mt-3 grid grid-cols-5 gap-2">
+              {heatmap.map((row, rowIndex) =>
+                row.map((cell, cellIndex) => (
+                  <div
+                    key={`${sensitivityRates[rowIndex]}-${sensitivityContributions[cellIndex]}`}
+                    className="rounded-lg border border-border/60 p-2 text-[10px]"
+                    style={{ background: heatColor(cell) }}
+                    title={`Return ${sensitivityRates[rowIndex] > 0 ? '+' : ''}${sensitivityRates[rowIndex]}%, Contribution ${sensitivityContributions[cellIndex] > 0 ? '+' : ''}${sensitivityContributions[cellIndex]} => ${currency(cell)}`}
+                  >
+                    <p>
+                      r {sensitivityRates[rowIndex] > 0 ? '+' : ''}
+                      {sensitivityRates[rowIndex]}%
+                    </p>
+                    <p>
+                      c {sensitivityContributions[cellIndex] > 0 ? '+' : ''}
+                      {sensitivityContributions[cellIndex]}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          </article>
 
           <article className="h-[330px] rounded-2xl border border-border bg-surface p-4 shadow-soft">
             <p className="mb-3 text-sm text-muted">Portfolio value over time</p>
