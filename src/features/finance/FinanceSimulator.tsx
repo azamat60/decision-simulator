@@ -201,6 +201,58 @@ export const FinanceSimulator = ({
           </div>
 
           <div className="space-y-3 border-t border-border pt-3">
+            <p className="text-sm font-medium text-muted">Timeline events</p>
+            <NumberStepper
+              label="Contribution step year"
+              value={input.contributionStepYear}
+              onChange={(value) => onUpdate({ contributionStepYear: value })}
+              min={0}
+              max={input.years}
+            />
+            <SliderField
+              label="Contribution step %"
+              value={input.contributionStepPercent}
+              onChange={(value) => onUpdate({ contributionStepPercent: value })}
+              min={-50}
+              max={100}
+              step={1}
+              suffix="%"
+            />
+            <NumberStepper
+              label="Shock year"
+              value={input.shockYear}
+              onChange={(value) => onUpdate({ shockYear: value })}
+              min={0}
+              max={input.years}
+            />
+            <SliderField
+              label="Shock %"
+              value={input.shockPercent}
+              onChange={(value) => onUpdate({ shockPercent: value })}
+              min={-70}
+              max={40}
+              step={1}
+              suffix="%"
+            />
+            <NumberStepper
+              label="Return shift year"
+              value={input.returnShiftYear}
+              onChange={(value) => onUpdate({ returnShiftYear: value })}
+              min={0}
+              max={input.years}
+            />
+            <SliderField
+              label="Return shift %"
+              value={input.returnShiftPercent}
+              onChange={(value) => onUpdate({ returnShiftPercent: value })}
+              min={-10}
+              max={10}
+              step={0.5}
+              suffix="%"
+            />
+          </div>
+
+          <div className="space-y-3 border-t border-border pt-3">
             <Toggle
               label="Compare current vs candidate"
               checked={candidateEnabled}
@@ -359,6 +411,10 @@ export const FinanceSimulator = ({
             <p className="mt-1">25% target: {milestone25 ? `${(milestone25.t / 12).toFixed(1)} years` : 'Not reached'}</p>
             <p>50% target: {milestone50 ? `${(milestone50.t / 12).toFixed(1)} years` : 'Not reached'}</p>
             <p>75% target: {milestone75 ? `${(milestone75.t / 12).toFixed(1)} years` : 'Not reached'}</p>
+            <p className="mt-2 text-xs">
+              Active events: contribution shift Y{input.contributionStepYear}, shock Y{input.shockYear}, return shift
+              Y{input.returnShiftYear}
+            </p>
           </article>
 
           {candidateEnabled ? (

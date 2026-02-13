@@ -57,16 +57,27 @@ const simulateSingle = (
 ): ScenarioResult<FinanceSummary> => {
   const scenarioParams = getScenarioInput(params, scenario)
   const months = scenarioParams.years * 12
-  const monthlyRate = scenarioParams.annualReturnRate / 100 / 12
+  let monthlyRate = scenarioParams.annualReturnRate / 100 / 12
   const monthlyInflation = scenarioParams.inflationRate / 100 / 12
 
   let balance = scenarioParams.initialAmount
+  let monthlyContribution = scenarioParams.monthlyContribution
   let contributed = scenarioParams.initialAmount
   const timeline: TimelinePoint[] = []
 
   for (let month = 1; month <= months; month += 1) {
-    balance = balance * (1 + monthlyRate) + scenarioParams.monthlyContribution
-    contributed += scenarioParams.monthlyContribution
+    if (scenarioParams.contributionStepYear > 0 && month === scenarioParams.contributionStepYear * 12) {
+      monthlyContribution *= 1 + scenarioParams.contributionStepPercent / 100
+    }
+    if (scenarioParams.returnShiftYear > 0 && month === scenarioParams.returnShiftYear * 12) {
+      monthlyRate = Math.max(-0.95, monthlyRate + scenarioParams.returnShiftPercent / 100 / 12)
+    }
+    if (scenarioParams.shockYear > 0 && month === scenarioParams.shockYear * 12) {
+      balance *= 1 + scenarioParams.shockPercent / 100
+    }
+
+    balance = balance * (1 + monthlyRate) + monthlyContribution
+    contributed += monthlyContribution
 
     const yearsElapsed = month / 12
     const discountFactor = Math.pow(1 + monthlyInflation, month)
@@ -118,7 +129,7 @@ export const simulateFinanceMonteCarlo = (
 ): MonteCarloFinanceResult => {
   const runs = Math.max(50, Math.min(2000, Math.floor(params.monteCarloRuns)))
   const months = params.years * 12
-  const meanMonthly = params.annualReturnRate / 100 / 12
+  let meanMonthly = params.annualReturnRate / 100 / 12
   const sigmaMonthly = (params.monteCarloVolatility / 100) / Math.sqrt(12)
   const paths: number[][] = Array.from({ length: months }, () => [])
   const finalValues: number[] = []
@@ -126,11 +137,22 @@ export const simulateFinanceMonteCarlo = (
   for (let run = 0; run < runs; run += 1) {
     const rand = makeSeededRandom(123456 + run)
     let balance = params.initialAmount
+    let monthlyContribution = params.monthlyContribution
+    meanMonthly = params.annualReturnRate / 100 / 12
 
     for (let month = 1; month <= months; month += 1) {
+      if (params.contributionStepYear > 0 && month === params.contributionStepYear * 12) {
+        monthlyContribution *= 1 + params.contributionStepPercent / 100
+      }
+      if (params.returnShiftYear > 0 && month === params.returnShiftYear * 12) {
+        meanMonthly = Math.max(-0.95, meanMonthly + params.returnShiftPercent / 100 / 12)
+      }
+      if (params.shockYear > 0 && month === params.shockYear * 12) {
+        balance *= 1 + params.shockPercent / 100
+      }
       const shock = randomNormal(rand)
       const monthlyReturn = meanMonthly + sigmaMonthly * shock
-      balance = balance * (1 + monthlyReturn) + params.monthlyContribution
+      balance = balance * (1 + monthlyReturn) + monthlyContribution
       paths[month - 1].push(balance)
     }
 
@@ -176,5 +198,11 @@ export const getFinanceDefaults = (): FinanceInputParams => ({
   monteCarloEnabled: false,
   monteCarloRuns: 400,
   monteCarloVolatility: 12,
-  targetFinalValue: 250000
+  targetFinalValue: 250000,
+  contributionStepYear: 3,
+  contributionStepPercent: 20,
+  shockYear: 5,
+  shockPercent: -15,
+  returnShiftYear: 6,
+  returnShiftPercent: 1.5
 })

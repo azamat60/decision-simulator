@@ -19,7 +19,13 @@ const sampleViews: SavedView[] = [
       monteCarloEnabled: false,
       monteCarloRuns: 400,
       monteCarloVolatility: 12,
-      targetFinalValue: 250000
+      targetFinalValue: 250000,
+      contributionStepYear: 3,
+      contributionStepPercent: 20,
+      shockYear: 5,
+      shockPercent: -15,
+      returnShiftYear: 6,
+      returnShiftPercent: 1.5
     },
     createdAt: '2026-02-13T00:00:00.000Z',
     updatedAt: '2026-02-13T00:00:00.000Z'

@@ -13,7 +13,13 @@ describe('simulateFinance', () => {
       monteCarloEnabled: false,
       monteCarloRuns: 400,
       monteCarloVolatility: 12,
-      targetFinalValue: 250000
+      targetFinalValue: 250000,
+      contributionStepYear: 3,
+      contributionStepPercent: 20,
+      shockYear: 5,
+      shockPercent: -15,
+      returnShiftYear: 6,
+      returnShiftPercent: 1.5
     })
 
     expect(result.base.summary.finalValue).toBeCloseTo(2395.08, 1)

@@ -53,6 +53,12 @@ export type FinanceInputParams = {
   monteCarloRuns: number
   monteCarloVolatility: number
   targetFinalValue: number
+  contributionStepYear: number
+  contributionStepPercent: number
+  shockYear: number
+  shockPercent: number
+  returnShiftYear: number
+  returnShiftPercent: number
 }
 
 export type TimeRoiInputParams = {
