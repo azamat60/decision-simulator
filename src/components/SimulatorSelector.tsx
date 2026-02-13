@@ -23,14 +23,16 @@ export const SimulatorSelector = ({ selected, onSelect }: Props) => (
           type="button"
           onClick={() => onSelect(kind)}
           className={cn(
-            'w-full rounded-2xl border p-4 text-left transition',
+            'relative w-full overflow-hidden rounded-2xl border p-4 text-left transition-all duration-200',
             selected === kind
-              ? 'border-accent/60 bg-gradient-to-r from-accent/20 to-accent2/20'
-              : 'border-border bg-surface hover:border-accent/40'
+              ? 'border-accent/60 bg-gradient-to-br from-accent/20 via-surface to-accent2/20 shadow-soft'
+              : 'border-border bg-surface hover:-translate-y-0.5 hover:border-accent/40'
           )}
         >
           <div className="mb-2 flex items-center gap-2">
-            <Icon size={18} className="text-accent" />
+            <span className="rounded-lg bg-bg/80 p-1.5">
+              <Icon size={16} className="text-accent" />
+            </span>
             <div className="font-semibold">{meta[kind].title}</div>
           </div>
           <p className="text-sm text-muted">{simulatorMeta[kind].description}</p>

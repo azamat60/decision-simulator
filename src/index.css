@@ -1,29 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --bg: #f4f6fb;
+  --bg: #f6f7fb;
   --surface: #ffffff;
-  --border: #d8deed;
-  --text: #121623;
-  --muted: #5c667d;
+  --border: #d4dbeb;
+  --text: #101422;
+  --muted: #616a7d;
   --accent: #3b82f6;
-  --accent-2: #22d3ee;
-  --positive: #22c55e;
-  --negative: #ef4444;
+  --accent-2: #06b6d4;
+  --positive: #16a34a;
+  --negative: #dc2626;
 }
 
 .dark {
-  --bg: #070b15;
-  --surface: #0d1322;
-  --border: #1f2a42;
-  --text: #e9eefb;
-  --muted: #9ca7be;
+  --bg: #070b14;
+  --surface: #0f1628;
+  --border: #21304a;
+  --text: #edf2ff;
+  --muted: #95a4bf;
   --accent: #60a5fa;
   --accent-2: #22d3ee;
   --positive: #22c55e;
-  --negative: #f87171;
+  --negative: #fb7185;
 }
 
 * {
@@ -38,11 +40,14 @@ body,
 
 body {
   margin: 0;
-  font-family: 'Space Grotesk', 'Avenir Next', 'Segoe UI', sans-serif;
-  background: radial-gradient(circle at 20% 0%, rgba(96, 165, 250, 0.13), transparent 40%),
-    radial-gradient(circle at 100% 0%, rgba(34, 211, 238, 0.1), transparent 35%), var(--bg);
+  font-family: 'Sora', 'Avenir Next', 'Segoe UI', sans-serif;
+  background:
+    radial-gradient(circle at 5% 10%, rgba(96, 165, 250, 0.14), transparent 35%),
+    radial-gradient(circle at 95% 15%, rgba(34, 211, 238, 0.16), transparent 40%),
+    linear-gradient(140deg, rgba(17, 24, 39, 0.05), rgba(14, 116, 144, 0.03)),
+    var(--bg);
   color: var(--text);
-  transition: background-color 180ms ease, color 180ms ease;
+  transition: background-color 220ms ease, color 220ms ease;
 }
 
 button,
@@ -55,4 +60,50 @@ textarea {
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+.ambient-blob {
+  position: fixed;
+  z-index: -1;
+  filter: blur(70px);
+  border-radius: 9999px;
+  pointer-events: none;
+}
+
+.ambient-blob-a {
+  width: 260px;
+  height: 260px;
+  background: rgba(59, 130, 246, 0.2);
+  top: -80px;
+  right: -20px;
+  animation: driftA 14s ease-in-out infinite;
+}
+
+.ambient-blob-b {
+  width: 240px;
+  height: 240px;
+  background: rgba(20, 184, 166, 0.18);
+  bottom: 30px;
+  left: -80px;
+  animation: driftB 18s ease-in-out infinite;
+}
+
+@keyframes driftA {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(24px);
+  }
+}
+
+@keyframes driftB {
+  0%,
+  100% {
+    transform: translateX(0px);
+  }
+  50% {
+    transform: translateX(20px);
+  }
 }

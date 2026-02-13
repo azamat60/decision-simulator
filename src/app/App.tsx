@@ -53,6 +53,8 @@ export const App = () => {
 
   return (
     <div className="min-h-screen">
+      <div className="ambient-blob ambient-blob-a" />
+      <div className="ambient-blob ambient-blob-b" />
       <TopNav tab={activeTab} setTab={setActiveTab} theme={theme} toggleTheme={toggleTheme} />
       <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6">
         {activeTab === 'simulators' ? (
