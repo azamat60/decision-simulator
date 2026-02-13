@@ -175,5 +175,6 @@ export const getFinanceDefaults = (): FinanceInputParams => ({
   showInflationAdjusted: true,
   monteCarloEnabled: false,
   monteCarloRuns: 400,
-  monteCarloVolatility: 12
+  monteCarloVolatility: 12,
+  targetFinalValue: 250000
 })

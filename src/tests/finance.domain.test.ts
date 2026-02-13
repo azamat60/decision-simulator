@@ -12,7 +12,8 @@ describe('simulateFinance', () => {
       showInflationAdjusted: false,
       monteCarloEnabled: false,
       monteCarloRuns: 400,
-      monteCarloVolatility: 12
+      monteCarloVolatility: 12,
+      targetFinalValue: 250000
     })
 
     expect(result.base.summary.finalValue).toBeCloseTo(2395.08, 1)

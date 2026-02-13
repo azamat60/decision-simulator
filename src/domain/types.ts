@@ -52,6 +52,7 @@ export type FinanceInputParams = {
   monteCarloEnabled: boolean
   monteCarloRuns: number
   monteCarloVolatility: number
+  targetFinalValue: number
 }
 
 export type TimeRoiInputParams = {

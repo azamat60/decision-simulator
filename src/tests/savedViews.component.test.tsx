@@ -18,7 +18,8 @@ const sampleViews: SavedView[] = [
       showInflationAdjusted: true,
       monteCarloEnabled: false,
       monteCarloRuns: 400,
-      monteCarloVolatility: 12
+      monteCarloVolatility: 12,
+      targetFinalValue: 250000
     },
     createdAt: '2026-02-13T00:00:00.000Z',
     updatedAt: '2026-02-13T00:00:00.000Z'

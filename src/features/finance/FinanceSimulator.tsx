@@ -52,9 +52,9 @@ export const FinanceSimulator = ({
   const monteCarlo = useMemo(
     () =>
       input.monteCarloEnabled
-        ? simulateFinanceMonteCarlo(input, result.base.summary.finalValue)
+        ? simulateFinanceMonteCarlo(input, input.targetFinalValue)
         : null,
-    [input, result.base.summary.finalValue]
+    [input]
   )
 
   const chartData = useMemo(() => {
@@ -77,6 +77,13 @@ export const FinanceSimulator = ({
   const changedFields = Object.entries(input)
     .filter(([key, value]) => defaults[key as keyof FinanceInputParams] !== value)
     .map(([key]) => key)
+  const targetGap = result.base.summary.finalValue - input.targetFinalValue
+  const targetEtaPoint = result.base.timeline.find((point) => point.metrics.value >= input.targetFinalValue)
+  const targetEtaYears = targetEtaPoint ? targetEtaPoint.t / 12 : null
+  const milestone25 = result.base.timeline.find((point) => point.metrics.value >= input.targetFinalValue * 0.25)
+  const milestone50 = result.base.timeline.find((point) => point.metrics.value >= input.targetFinalValue * 0.5)
+  const milestone75 = result.base.timeline.find((point) => point.metrics.value >= input.targetFinalValue * 0.75)
+  const riskProbability = monteCarlo ? monteCarlo.successProbability : targetGap >= 0 ? 1 : 0
 
   return (
     <section className="space-y-4">
@@ -129,6 +136,13 @@ export const FinanceSimulator = ({
               max={15}
               step={0.5}
               suffix="%"
+            />
+            <NumberStepper
+              label="Target final value"
+              value={input.targetFinalValue}
+              onChange={(value) => onUpdate({ targetFinalValue: value })}
+              min={10000}
+              step={5000}
             />
           </div>
 
@@ -242,11 +256,40 @@ export const FinanceSimulator = ({
               </p>
               <p className="mt-2">Median final value: {currency(monteCarlo.finalMedian)}</p>
               <p>
-                Probability of hitting deterministic target ({currency(result.base.summary.finalValue)}):{' '}
+                Probability of hitting target ({currency(input.targetFinalValue)}):{' '}
                 <span className="font-semibold text-text">{percent(monteCarlo.successProbability)}</span>
               </p>
             </article>
           ) : null}
+
+          <article
+            className={`rounded-2xl border p-4 text-sm shadow-soft ${
+              riskProbability >= 0.7
+                ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
+                : riskProbability >= 0.4
+                  ? 'border-amber-500/30 bg-amber-500/10 text-amber-100'
+                  : 'border-rose-500/30 bg-rose-500/10 text-rose-100'
+            }`}
+          >
+            <p className="font-medium">Target status</p>
+            <p className="mt-1">
+              Gap to target: <span className="font-semibold">{currency(targetGap)}</span>
+            </p>
+            <p>
+              ETA to target:{' '}
+              <span className="font-semibold">
+                {targetEtaYears ? `${targetEtaYears.toFixed(1)} years` : 'Not reached in selected horizon'}
+              </span>
+            </p>
+            <p>Confidence: {percent(riskProbability)}</p>
+          </article>
+
+          <article className="rounded-2xl border border-border bg-surface p-4 text-sm text-muted shadow-soft">
+            <p className="font-medium text-text">Milestones</p>
+            <p className="mt-1">25% target: {milestone25 ? `${(milestone25.t / 12).toFixed(1)} years` : 'Not reached'}</p>
+            <p>50% target: {milestone50 ? `${(milestone50.t / 12).toFixed(1)} years` : 'Not reached'}</p>
+            <p>75% target: {milestone75 ? `${(milestone75.t / 12).toFixed(1)} years` : 'Not reached'}</p>
+          </article>
 
           <article className="h-[330px] rounded-2xl border border-border bg-surface p-4 shadow-soft">
             <p className="mb-3 text-sm text-muted">Portfolio value over time</p>

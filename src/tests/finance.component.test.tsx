@@ -26,13 +26,13 @@ describe('FinanceSimulator UI', () => {
     const user = userEvent.setup()
     render(<Wrapper />)
 
-    const before = screen.getByText(/Final value/i).parentElement?.textContent
+    const before = screen.getByText(/^Final value$/i, { selector: 'p' }).parentElement?.textContent
     const input = screen.getByRole('spinbutton', { name: /Monthly contribution/i })
 
     await user.clear(input)
     await user.type(input, '1000')
 
-    const after = screen.getByText(/Final value/i).parentElement?.textContent
+    const after = screen.getByText(/^Final value$/i, { selector: 'p' }).parentElement?.textContent
     expect(after).not.toEqual(before)
   })
 })
