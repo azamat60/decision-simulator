@@ -1,5 +1,5 @@
 import { Info, RotateCcw, Save, Sigma } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Area,
   AreaChart,
@@ -22,6 +22,7 @@ import { Toggle } from '../../components/Toggle'
 import { SegmentedControl } from '../../components/SegmentedControl'
 import { SummaryCard } from '../../components/SummaryCard'
 import { ScenarioCards } from '../../components/ScenarioCards'
+import { loadFinancePresets, saveFinancePresets, type NamedPreset } from '../../storage/customPresets'
 
 type Props = {
   input: FinanceInputParams
@@ -32,11 +33,15 @@ type Props = {
   onSave: (name: string) => void
 }
 
-const presetValues = {
-  conservative: 6,
-  base: 8,
-  optimistic: 10
-} as const
+const presetMap: Record<string, Partial<FinanceInputParams>> = {
+  conservative: { annualReturnRate: 6 },
+  base: { annualReturnRate: 8 },
+  optimistic: { annualReturnRate: 10 },
+  aggressive: { annualReturnRate: 12, monthlyContribution: 800, years: 20 },
+  careerBreak: { annualReturnRate: 6, monthlyContribution: 300, years: 18, shockYear: 4, shockPercent: -25 }
+}
+const sensitivityRates = [-2, -1, 0, 1, 2]
+const sensitivityContributions = [-200, -100, 0, 100, 200]
 
 export const FinanceSimulator = ({
   input,
@@ -47,10 +52,16 @@ export const FinanceSimulator = ({
   onSave
 }: Props) => {
   const [saveName, setSaveName] = useState('')
-  const [preset, setPreset] = useState<'conservative' | 'base' | 'optimistic'>('base')
+  const [preset, setPreset] = useState<string>('base')
+  const [customPresetName, setCustomPresetName] = useState('')
+  const [customPresets, setCustomPresets] = useState<NamedPreset<FinanceInputParams>[]>(() => loadFinancePresets())
   const [candidateEnabled, setCandidateEnabled] = useState(false)
   const [candidateInput, setCandidateInput] = useState<FinanceInputParams>(input)
   const result = useMemo(() => simulateFinance(input), [input])
+
+  useEffect(() => {
+    saveFinancePresets(customPresets)
+  }, [customPresets])
   const candidateResult = useMemo(() => simulateFinance(candidateInput), [candidateInput])
   const monteCarlo = useMemo(
     () =>
@@ -88,8 +99,6 @@ export const FinanceSimulator = ({
   const milestone75 = result.base.timeline.find((point) => point.metrics.value >= input.targetFinalValue * 0.75)
   const riskProbability = monteCarlo ? monteCarlo.successProbability : targetGap >= 0 ? 1 : 0
   const candidateDelta = candidateResult.base.summary.finalValue - result.base.summary.finalValue
-  const sensitivityRates = [-2, -1, 0, 1, 2]
-  const sensitivityContributions = [-200, -100, 0, 100, 200]
   const heatmap = useMemo(
     () =>
       sensitivityRates.map((rateShift) =>
@@ -180,14 +189,68 @@ export const FinanceSimulator = ({
               value={preset}
               onChange={(value) => {
                 setPreset(value)
-                onUpdate({ annualReturnRate: presetValues[value] })
+                onUpdate(presetMap[value] ?? {})
               }}
               options={[
                 { value: 'conservative', label: 'Conservative' },
                 { value: 'base', label: 'Base' },
-                { value: 'optimistic', label: 'Optimistic' }
+                { value: 'optimistic', label: 'Optimistic' },
+                { value: 'aggressive', label: 'Aggressive' },
+                { value: 'careerBreak', label: 'Career break' }
               ]}
             />
+            <div className="space-y-2 rounded-xl border border-border bg-bg p-3">
+              <p className="text-xs text-muted">Custom preset</p>
+              <div className="flex gap-2">
+                <input
+                  className="w-full rounded-lg border border-border bg-surface px-2 py-1 text-xs"
+                  placeholder="Preset name"
+                  value={customPresetName}
+                  onChange={(event) => setCustomPresetName(event.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const name = customPresetName.trim()
+                    if (!name) return
+                    setCustomPresets((prev) => [
+                      {
+                        name,
+                        values: {
+                          annualReturnRate: input.annualReturnRate,
+                          monthlyContribution: input.monthlyContribution,
+                          years: input.years,
+                          shockYear: input.shockYear,
+                          shockPercent: input.shockPercent
+                        }
+                      },
+                      ...prev
+                    ])
+                    setCustomPresetName('')
+                  }}
+                  className="rounded-lg border border-border px-2 py-1 text-xs"
+                >
+                  Save
+                </button>
+              </div>
+              {customPresets.length > 0 ? (
+                <select
+                  className="w-full rounded-lg border border-border bg-surface px-2 py-1 text-xs"
+                  defaultValue=""
+                  onChange={(event) => {
+                    const selected = customPresets.find((item) => item.name === event.target.value)
+                    if (selected) onUpdate(selected.values)
+                  }}
+                >
+                  <option value="" disabled>Load custom preset</option>
+                  {customPresets.map((item) => (
+                    <option key={item.name} value={item.name}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+              ) : null}
+            </div>
             <Toggle
               label="Show inflation-adjusted"
               checked={input.showInflationAdjusted}

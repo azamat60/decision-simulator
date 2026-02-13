@@ -1,5 +1,5 @@
 import { Info, RotateCcw, Save } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Bar,
   BarChart,
@@ -23,6 +23,7 @@ import { SliderField } from '../../components/SliderField'
 import { SummaryCard } from '../../components/SummaryCard'
 import { Toggle } from '../../components/Toggle'
 import { ScenarioCards } from '../../components/ScenarioCards'
+import { loadTimeRoiPresets, saveTimeRoiPresets, type NamedPreset } from '../../storage/customPresets'
 
 type Props = {
   input: TimeRoiInputParams
@@ -33,11 +34,12 @@ type Props = {
   onSave: (name: string) => void
 }
 
-const presetMap: Record<'learning' | 'fitness' | 'language' | 'side', Partial<TimeRoiInputParams>> = {
+const presetMap: Record<string, Partial<TimeRoiInputParams>> = {
   learning: { dailyMinutes: 45, daysPerWeek: 5, durationWeeks: 24, efficiencyGain: 8, skipRate: 18 },
   fitness: { dailyMinutes: 60, daysPerWeek: 4, durationWeeks: 16, efficiencyGain: 5, skipRate: 20 },
   language: { dailyMinutes: 30, daysPerWeek: 6, durationWeeks: 30, efficiencyGain: 12, skipRate: 15 },
-  side: { dailyMinutes: 90, daysPerWeek: 5, durationWeeks: 20, efficiencyGain: 15, skipRate: 25 }
+  side: { dailyMinutes: 90, daysPerWeek: 5, durationWeeks: 20, efficiencyGain: 15, skipRate: 25 },
+  lowConsistency: { dailyMinutes: 35, daysPerWeek: 4, durationWeeks: 20, efficiencyGain: 6, skipRate: 40 }
 }
 
 export const TimeRoiSimulator = ({
@@ -49,11 +51,17 @@ export const TimeRoiSimulator = ({
   onSave
 }: Props) => {
   const [saveName, setSaveName] = useState('')
-  const [preset, setPreset] = useState<'learning' | 'fitness' | 'language' | 'side'>('learning')
+  const [preset, setPreset] = useState<string>('learning')
+  const [customPresetName, setCustomPresetName] = useState('')
+  const [customPresets, setCustomPresets] = useState<NamedPreset<TimeRoiInputParams>[]>(() => loadTimeRoiPresets())
   const [candidateEnabled, setCandidateEnabled] = useState(false)
   const [candidateInput, setCandidateInput] = useState<TimeRoiInputParams>(input)
 
   const result = useMemo(() => simulateTimeRoi(input), [input])
+
+  useEffect(() => {
+    saveTimeRoiPresets(customPresets)
+  }, [customPresets])
   const candidateResult = useMemo(() => simulateTimeRoi(candidateInput), [candidateInput])
   const defaults = getTimeRoiDefaults()
 
@@ -169,15 +177,68 @@ export const TimeRoiSimulator = ({
               value={preset}
               onChange={(value) => {
                 setPreset(value)
-                onUpdate(presetMap[value])
+                onUpdate(presetMap[value] ?? {})
               }}
               options={[
                 { value: 'learning', label: 'Learning' },
                 { value: 'fitness', label: 'Fitness' },
                 { value: 'language', label: 'Language' },
-                { value: 'side', label: 'Side Project' }
+                { value: 'side', label: 'Side Project' },
+                { value: 'lowConsistency', label: 'Low consistency' }
               ]}
             />
+            <div className="space-y-2 rounded-xl border border-border bg-bg p-3">
+              <p className="text-xs text-muted">Custom preset</p>
+              <div className="flex gap-2">
+                <input
+                  className="w-full rounded-lg border border-border bg-surface px-2 py-1 text-xs"
+                  placeholder="Preset name"
+                  value={customPresetName}
+                  onChange={(event) => setCustomPresetName(event.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const name = customPresetName.trim()
+                    if (!name) return
+                    setCustomPresets((prev) => [
+                      {
+                        name,
+                        values: {
+                          dailyMinutes: input.dailyMinutes,
+                          daysPerWeek: input.daysPerWeek,
+                          durationWeeks: input.durationWeeks,
+                          efficiencyGain: input.efficiencyGain,
+                          skipRate: input.skipRate
+                        }
+                      },
+                      ...prev
+                    ])
+                    setCustomPresetName('')
+                  }}
+                  className="rounded-lg border border-border px-2 py-1 text-xs"
+                >
+                  Save
+                </button>
+              </div>
+              {customPresets.length > 0 ? (
+                <select
+                  className="w-full rounded-lg border border-border bg-surface px-2 py-1 text-xs"
+                  defaultValue=""
+                  onChange={(event) => {
+                    const selected = customPresets.find((item) => item.name === event.target.value)
+                    if (selected) onUpdate(selected.values)
+                  }}
+                >
+                  <option value="" disabled>Load custom preset</option>
+                  {customPresets.map((item) => (
+                    <option key={item.name} value={item.name}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+              ) : null}
+            </div>
             <Toggle
               label="Compare scenarios"
               checked={compareScenarios}
