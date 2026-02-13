@@ -1,11 +1,16 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { SavedViewsPanel } from '../components/SavedViewsPanel'
 import { SimulatorSelector } from '../components/SimulatorSelector'
 import { Toast } from '../components/Toast'
 import { TopNav } from '../components/TopNav'
-import { FinanceSimulator } from '../features/finance/FinanceSimulator'
-import { TimeRoiSimulator } from '../features/timeRoi/TimeRoiSimulator'
 import { useAppStore } from '../state/appStore'
+
+const FinanceSimulator = lazy(() =>
+  import('../features/finance/FinanceSimulator').then((module) => ({ default: module.FinanceSimulator }))
+)
+const TimeRoiSimulator = lazy(() =>
+  import('../features/timeRoi/TimeRoiSimulator').then((module) => ({ default: module.TimeRoiSimulator }))
+)
 
 export const App = () => {
   const {
@@ -54,25 +59,33 @@ export const App = () => {
           <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
             <SimulatorSelector selected={selectedSimulator} onSelect={setSelectedSimulator} />
             <div>
-              {selectedSimulator === 'finance' ? (
-                <FinanceSimulator
-                  input={finance}
-                  compareScenarios={compareScenarios}
-                  onUpdate={updateFinance}
-                  onToggleCompare={setCompareScenarios}
-                  onReset={() => resetSimulator('finance')}
-                  onSave={saveCurrentView}
-                />
-              ) : (
-                <TimeRoiSimulator
-                  input={timeRoi}
-                  compareScenarios={compareScenarios}
-                  onUpdate={updateTimeRoi}
-                  onToggleCompare={setCompareScenarios}
-                  onReset={() => resetSimulator('timeRoi')}
-                  onSave={saveCurrentView}
-                />
-              )}
+              <Suspense
+                fallback={
+                  <div className="rounded-2xl border border-border bg-surface p-6 text-sm text-muted shadow-soft">
+                    Loading simulator...
+                  </div>
+                }
+              >
+                {selectedSimulator === 'finance' ? (
+                  <FinanceSimulator
+                    input={finance}
+                    compareScenarios={compareScenarios}
+                    onUpdate={updateFinance}
+                    onToggleCompare={setCompareScenarios}
+                    onReset={() => resetSimulator('finance')}
+                    onSave={saveCurrentView}
+                  />
+                ) : (
+                  <TimeRoiSimulator
+                    input={timeRoi}
+                    compareScenarios={compareScenarios}
+                    onUpdate={updateTimeRoi}
+                    onToggleCompare={setCompareScenarios}
+                    onReset={() => resetSimulator('timeRoi')}
+                    onSave={saveCurrentView}
+                  />
+                )}
+              </Suspense>
             </div>
           </div>
         ) : (
