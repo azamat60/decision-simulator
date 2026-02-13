@@ -1,4 +1,4 @@
-import { Info, RotateCcw, Save } from 'lucide-react'
+import { Info, RotateCcw, Save, Sigma } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import {
   Area,
@@ -14,7 +14,7 @@ import {
 } from 'recharts'
 import { currency, percent } from '../../app/format'
 import { scenarioColor } from '../../domain/scenarios'
-import { getFinanceDefaults, simulateFinance } from '../../domain/finance'
+import { getFinanceDefaults, simulateFinance, simulateFinanceMonteCarlo } from '../../domain/finance'
 import type { FinanceInputParams } from '../../domain/types'
 import { NumberStepper } from '../../components/NumberStepper'
 import { SliderField } from '../../components/SliderField'
@@ -49,6 +49,13 @@ export const FinanceSimulator = ({
   const [saveName, setSaveName] = useState('')
   const [preset, setPreset] = useState<'conservative' | 'base' | 'optimistic'>('base')
   const result = useMemo(() => simulateFinance(input), [input])
+  const monteCarlo = useMemo(
+    () =>
+      input.monteCarloEnabled
+        ? simulateFinanceMonteCarlo(input, result.base.summary.finalValue)
+        : null,
+    [input, result.base.summary.finalValue]
+  )
 
   const chartData = useMemo(() => {
     const base = result.base.timeline
@@ -59,9 +66,12 @@ export const FinanceSimulator = ({
       growth: point.metrics.growth,
       conservative: result.conservative.timeline[index]?.metrics.value ?? point.metrics.value,
       optimistic: result.optimistic.timeline[index]?.metrics.value ?? point.metrics.value,
-      real: point.metrics.realValue
+      real: point.metrics.realValue,
+      mcP10: monteCarlo?.timeline[index]?.p10,
+      mcP50: monteCarlo?.timeline[index]?.p50,
+      mcP90: monteCarlo?.timeline[index]?.p90
     }))
-  }, [result])
+  }, [result, monteCarlo])
 
   const defaults = getFinanceDefaults()
   const changedFields = Object.entries(input)
@@ -149,6 +159,35 @@ export const FinanceSimulator = ({
           </div>
 
           <div className="space-y-3 border-t border-border pt-3">
+            <Toggle
+              label="Monte Carlo mode"
+              checked={input.monteCarloEnabled}
+              onChange={(checked) => onUpdate({ monteCarloEnabled: checked })}
+            />
+            {input.monteCarloEnabled ? (
+              <>
+                <NumberStepper
+                  label="Monte Carlo runs"
+                  value={input.monteCarloRuns}
+                  onChange={(value) => onUpdate({ monteCarloRuns: value })}
+                  min={100}
+                  max={2000}
+                  step={100}
+                />
+                <SliderField
+                  label="Volatility (annual std dev)"
+                  value={input.monteCarloVolatility}
+                  onChange={(value) => onUpdate({ monteCarloVolatility: value })}
+                  min={1}
+                  max={40}
+                  step={1}
+                  suffix="%"
+                />
+              </>
+            ) : null}
+          </div>
+
+          <div className="space-y-3 border-t border-border pt-3">
             <label className="block text-sm text-muted">
               Save current view
               <input
@@ -196,6 +235,19 @@ export const FinanceSimulator = ({
             />
           </div>
 
+          {input.monteCarloEnabled && monteCarlo ? (
+            <article className="rounded-2xl border border-border bg-surface p-4 text-sm text-muted shadow-soft">
+              <p className="inline-flex items-center gap-1 font-medium text-text">
+                <Sigma size={15} className="text-accent" /> Monte Carlo insights
+              </p>
+              <p className="mt-2">Median final value: {currency(monteCarlo.finalMedian)}</p>
+              <p>
+                Probability of hitting deterministic target ({currency(result.base.summary.finalValue)}):{' '}
+                <span className="font-semibold text-text">{percent(monteCarlo.successProbability)}</span>
+              </p>
+            </article>
+          ) : null}
+
           <article className="h-[330px] rounded-2xl border border-border bg-surface p-4 shadow-soft">
             <p className="mb-3 text-sm text-muted">Portfolio value over time</p>
             <ResponsiveContainer width="100%" height="90%">
@@ -226,6 +278,13 @@ export const FinanceSimulator = ({
                 ) : null}
                 {input.showInflationAdjusted ? (
                   <Line type="monotone" dataKey="real" stroke="#c084fc" strokeWidth={1.8} dot={false} />
+                ) : null}
+                {input.monteCarloEnabled ? (
+                  <>
+                    <Line type="monotone" dataKey="mcP10" stroke="#f43f5e" strokeWidth={1.4} dot={false} />
+                    <Line type="monotone" dataKey="mcP50" stroke="#f59e0b" strokeWidth={1.8} dot={false} />
+                    <Line type="monotone" dataKey="mcP90" stroke="#10b981" strokeWidth={1.4} dot={false} />
+                  </>
                 ) : null}
               </LineChart>
             </ResponsiveContainer>

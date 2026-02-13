@@ -15,7 +15,10 @@ const sampleViews: SavedView[] = [
       years: 10,
       annualReturnRate: 8,
       inflationRate: 2,
-      showInflationAdjusted: true
+      showInflationAdjusted: true,
+      monteCarloEnabled: false,
+      monteCarloRuns: 400,
+      monteCarloVolatility: 12
     },
     createdAt: '2026-02-13T00:00:00.000Z',
     updatedAt: '2026-02-13T00:00:00.000Z'

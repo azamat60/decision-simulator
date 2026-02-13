@@ -19,6 +19,20 @@ export type MultiScenarioResult<TSummary extends Record<string, number>> = {
   optimistic: ScenarioResult<TSummary>
 }
 
+export type MonteCarloPoint = {
+  t: number
+  label: string
+  p10: number
+  p50: number
+  p90: number
+}
+
+export type MonteCarloFinanceResult = {
+  timeline: MonteCarloPoint[]
+  finalMedian: number
+  successProbability: number
+}
+
 export type SavedView = {
   id: string
   name: string
@@ -35,6 +49,9 @@ export type FinanceInputParams = {
   annualReturnRate: number
   inflationRate: number
   showInflationAdjusted: boolean
+  monteCarloEnabled: boolean
+  monteCarloRuns: number
+  monteCarloVolatility: number
 }
 
 export type TimeRoiInputParams = {

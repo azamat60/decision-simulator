@@ -9,7 +9,10 @@ describe('simulateFinance', () => {
       years: 1,
       annualReturnRate: 12,
       inflationRate: 0,
-      showInflationAdjusted: false
+      showInflationAdjusted: false,
+      monteCarloEnabled: false,
+      monteCarloRuns: 400,
+      monteCarloVolatility: 12
     })
 
     expect(result.base.summary.finalValue).toBeCloseTo(2395.08, 1)

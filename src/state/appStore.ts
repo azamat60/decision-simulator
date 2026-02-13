@@ -88,7 +88,10 @@ export const useAppStore = create<AppState>()(
         }
 
         if (target.simulator === 'finance') {
-          set({ selectedSimulator: 'finance', finance: target.params as FinanceInputParams })
+          set({
+            selectedSimulator: 'finance',
+            finance: { ...getFinanceDefaults(), ...(target.params as Partial<FinanceInputParams>) }
+          })
         } else {
           set({ selectedSimulator: 'timeRoi', timeRoi: target.params as TimeRoiInputParams })
         }
