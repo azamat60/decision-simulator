@@ -1,48 +1,81 @@
-import { Moon, Sun } from 'lucide-react'
-import { cn } from '../styles/utils'
-import type { AppTab } from '../app/types'
+import { Moon, Sun } from "lucide-react";
+import { cn } from "../styles/utils";
+import type { AppTab } from "../app/types";
 
 type Props = {
-  tab: AppTab
-  setTab: (tab: AppTab) => void
-  theme: 'dark' | 'light'
-  toggleTheme: () => void
-}
+  tab: AppTab;
+  setTab: (tab: AppTab) => void;
+  theme: "dark" | "light";
+  toggleTheme: () => void;
+};
 
 export const TopNav = ({ tab, setTab, theme, toggleTheme }: Props) => (
-  <header className="sticky top-0 z-20 border-b border-border/70 bg-bg/75 backdrop-blur-xl">
-    <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
-      <h1 className="text-lg font-semibold tracking-[0.02em]">
-        Decision Simulator
-        <span className="ml-2 rounded-md bg-gradient-to-r from-accent/20 to-accent2/20 px-2 py-1 text-[10px] uppercase tracking-widest text-muted">
-          What-If Engine
-        </span>
-      </h1>
-      <div className="flex items-center gap-2 rounded-2xl border border-border bg-surface/90 p-1.5 shadow-soft">
-        {(['simulators', 'saved'] as const).map((item) => (
+  <header className="sticky top-4 z-50 mx-auto max-w-7xl px-4 sm:px-6">
+    <div className="glass rounded-2xl px-4 py-3 shadow-lg ring-1 ring-border/50 transition-all duration-300 hover:ring-primary/20 hover:shadow-xl">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-white shadow-md">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-5 w-5"
+            >
+              <path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M4.93 19.07L19.07 4.93" />
+            </svg>
+          </div>
+          <h1 className="text-lg font-bold tracking-tight text-text">
+            Decision<span className="text-primary">Simulator</span>
+          </h1>
+          <span className="hidden rounded-full border border-primary/20 bg-primary/5 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-primary sm:inline-block">
+            Beta
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <nav className="flex rounded-xl bg-surface/50 p-1 shadow-inner ring-1 ring-border/50">
+            {(["simulators", "saved"] as const).map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setTab(item)}
+                className={cn(
+                  "rounded-lg px-4 py-1.5 text-sm font-medium transition-all duration-200",
+                  tab === item
+                    ? "bg-surface text-primary shadow-sm ring-1 ring-border/50"
+                    : "text-text-secondary hover:bg-surface/50 hover:text-text",
+                )}
+              >
+                {item === "simulators" ? "Simulators" : "Saved Views"}
+              </button>
+            ))}
+          </nav>
+
+          <div className="h-6 w-px bg-border/50" />
+
           <button
-            key={item}
             type="button"
-            onClick={() => setTab(item)}
-            className={cn(
-              'rounded-xl px-3 py-1.5 text-sm font-medium transition-all duration-200',
-              tab === item
-                ? 'bg-gradient-to-r from-accent to-accent2 text-slate-950 shadow-sm'
-                : 'text-muted hover:-translate-y-0.5 hover:bg-bg hover:text-text'
-            )}
+            aria-label="Toggle theme"
+            onClick={toggleTheme}
+            className="group rounded-xl border border-transparent p-2 text-text-secondary transition-all hover:bg-surface hover:text-primary active:scale-95"
           >
-            {item === 'simulators' ? 'Simulators' : 'Saved Views'}
+            {theme === "dark" ? (
+              <Sun
+                size={18}
+                className="transition-transform duration-500 group-hover:rotate-90"
+              />
+            ) : (
+              <Moon
+                size={18}
+                className="transition-transform duration-500 group-hover:-rotate-12"
+              />
+            )}
           </button>
-        ))}
+        </div>
       </div>
-      <button
-        type="button"
-        aria-label="Toggle theme"
-        onClick={toggleTheme}
-        className="rounded-xl border border-border bg-surface/90 p-2 text-muted transition hover:-translate-y-0.5 hover:text-text"
-      >
-        {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-      </button>
     </div>
   </header>
-)
+);
