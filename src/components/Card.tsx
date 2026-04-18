@@ -18,14 +18,18 @@ export const Card = ({
 }: Props) => (
   <div className={cn("glass-card p-5", className)}>
     {(title || action) && (
-      <header className="mb-4 flex items-center justify-between">
+      <header className="mb-4 flex items-start justify-between gap-2">
         <div>
-          {title && <h3 className="font-semibold text-text">{title}</h3>}
+          {title && (
+            <h3 className="font-space font-semibold text-text leading-snug">
+              {title}
+            </h3>
+          )}
           {subtitle && (
-            <p className="mt-0.5 text-sm text-text-tertiary">{subtitle}</p>
+            <p className="mt-0.5 text-xs text-text-tertiary">{subtitle}</p>
           )}
         </div>
-        {action && <div>{action}</div>}
+        {action && <div className="flex-shrink-0">{action}</div>}
       </header>
     )}
     {children}

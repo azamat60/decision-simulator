@@ -6,24 +6,24 @@
 
 :root {
   /* Clean Air Theme (Light) */
-  --bg: 210 40% 98%;
+  --bg: 210 40% 97%;
   --surface: 0 0% 100%;
-  --surface-glass: 0 0% 100% / 0.7;
-  --border: 220 13% 91%;
+  --surface-glass: 0 0% 100% / 0.8;
+  --border: 220 13% 88%;
 
   --text: 222 47% 11%;
   --text-secondary: 215 16% 47%;
   --text-tertiary: 215 16% 65%;
 
-  --primary: 221 83% 53%; /* Blue */
+  --primary: 221 83% 53%;
   --primary-foreground: 210 40% 98%;
 
-  --accent: 262 83% 58%; /* Purple */
+  --accent: 262 83% 58%;
   --accent-foreground: 210 40% 98%;
 
-  --success: 142 71% 45%;
+  --success: 142 71% 40%;
   --warning: 38 92% 50%;
-  --destructive: 0 84% 60%;
+  --destructive: 0 84% 58%;
 
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
@@ -34,23 +34,23 @@
 .dark {
   /* Deep Space Theme (Dark) */
   --bg: 224 71% 4%;
-  --surface: 222 47% 11%;
-  --surface-glass: 222 47% 11% / 0.6;
-  --border: 217 33% 17%;
+  --surface: 222 50% 13%;
+  --surface-glass: 222 50% 13% / 0.65;
+  --border: 217 33% 22%;
 
   --text: 210 40% 98%;
   --text-secondary: 215 20% 65%;
-  --text-tertiary: 215 20% 45%;
+  --text-tertiary: 215 20% 42%;
 
-  --primary: 217 91% 60%;
+  --primary: 217 91% 62%;
   --primary-foreground: 222 47% 11%;
 
-  --accent: 262 83% 65%;
+  --accent: 262 83% 68%;
   --accent-foreground: 222 47% 11%;
 
   --success: 142 71% 55%;
   --warning: 38 92% 60%;
-  --destructive: 0 84% 70%;
+  --destructive: 0 84% 68%;
 }
 
 * {
@@ -82,14 +82,19 @@ body {
     color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   background-image:
     radial-gradient(
-      circle at 15% 50%,
-      hsla(var(--primary) / 0.08),
-      transparent 25%
+      ellipse at 10% 40%,
+      hsla(var(--primary) / 0.12),
+      transparent 40%
     ),
     radial-gradient(
-      circle at 85% 30%,
-      hsla(var(--accent) / 0.08),
-      transparent 25%
+      ellipse at 90% 10%,
+      hsla(var(--accent) / 0.12),
+      transparent 40%
+    ),
+    radial-gradient(
+      ellipse at 60% 90%,
+      hsla(var(--primary) / 0.07),
+      transparent 35%
     );
   background-attachment: fixed;
 }
@@ -111,12 +116,13 @@ textarea {
   font: inherit;
 }
 
-/* Glassmorphism Utilities */
+/* ─── Glassmorphism ──────────────────────────────────────── */
+
 .glass {
   background: hsl(var(--surface-glass));
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid hsla(var(--border) / 0.5);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid hsla(var(--border) / 0.7);
 }
 
 .glass-card {
@@ -124,15 +130,47 @@ textarea {
 }
 
 .glass-card:hover {
-  border-color: hsla(var(--primary) / 0.3);
-  box-shadow: 0 8px 30px hsla(0, 0%, 0%, 0.04);
-  transform: translateY(-2px);
+  border-color: hsla(var(--primary) / 0.35);
+  box-shadow: 0 8px 32px hsla(0, 0%, 0%, 0.12), 0 0 0 1px hsla(var(--primary) / 0.08);
+  transform: translateY(-1px);
 }
 
-/* Custom Scrollbar */
+/* ─── Gradient border card ───────────────────────────────── */
+
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    hsla(var(--primary) / 0.3),
+    hsla(var(--accent) / 0.15),
+    transparent 60%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ─── Number / stat display ──────────────────────────────── */
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* ─── Custom Scrollbar ───────────────────────────────────── */
+
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -140,19 +178,20 @@ textarea {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsla(var(--text-secondary) / 0.2);
+  background: hsla(var(--text-secondary) / 0.18);
   border-radius: 99px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsla(var(--text-secondary) / 0.4);
+  background: hsla(var(--text-secondary) / 0.35);
 }
 
-/* Animation Keyframes */
+/* ─── Animations ─────────────────────────────────────────── */
+
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -163,7 +202,7 @@ textarea {
 @keyframes scaleIn {
   from {
     opacity: 0;
-    transform: scale(0.95);
+    transform: scale(0.96);
   }
   to {
     opacity: 1;
@@ -171,27 +210,50 @@ textarea {
   }
 }
 
+@keyframes shimmer {
+  from { background-position: -200% center; }
+  to { background-position: 200% center; }
+}
+
 .animate-fade-in {
-  animation: fadeIn 0.4s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+  animation: fadeIn 0.35s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
 }
 
 .animate-scale-in {
   animation: scaleIn 0.3s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
 }
 
-/* Focus Styles */
+/* ─── Focus Styles ───────────────────────────────────────── */
+
 :focus-visible {
   outline: 2px solid hsl(var(--primary));
   outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: 4px;
 }
 
-/* Ambient Background Blobs (Global) */
+/* ─── Ambient Background Blobs ───────────────────────────── */
+
 .ambient-shape {
   position: fixed;
   z-index: -1;
-  filter: blur(80px);
-  opacity: 0.6;
+  filter: blur(90px);
+  opacity: 0.5;
   border-radius: 9999px;
   pointer-events: none;
+}
+
+/* ─── Gradient text utilities ────────────────────────────── */
+
+.gradient-text {
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-success {
+  background: linear-gradient(135deg, hsl(var(--success)), hsl(142 80% 70%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

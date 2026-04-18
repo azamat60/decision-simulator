@@ -59,12 +59,16 @@ export const App = () => {
     <div className="min-h-screen relative overflow-hidden selection:bg-primary/20 selection:text-primary">
       {/* Ambient Background */}
       <div
-        className="ambient-shape bg-primary/20 w-[500px] h-[500px] -top-20 -right-20 animate-pulse"
-        style={{ animationDuration: "10s" }}
+        className="ambient-shape bg-primary/25 w-[600px] h-[600px] -top-32 -right-32 animate-pulse"
+        style={{ animationDuration: "12s" }}
       />
       <div
-        className="ambient-shape bg-accent/20 w-[400px] h-[400px] bottom-0 -left-20 animate-pulse"
-        style={{ animationDuration: "15s", animationDelay: "2s" }}
+        className="ambient-shape bg-accent/20 w-[500px] h-[500px] bottom-10 -left-32 animate-pulse"
+        style={{ animationDuration: "18s", animationDelay: "3s" }}
+      />
+      <div
+        className="ambient-shape bg-primary/10 w-[300px] h-[300px] top-1/2 left-1/2 -translate-x-1/2 animate-pulse"
+        style={{ animationDuration: "22s", animationDelay: "6s" }}
       />
 
       <TopNav
@@ -125,8 +129,13 @@ export const App = () => {
         )}
       </main>
 
-      <footer className="mt-12 border-t border-border/40 py-8 text-center text-xs text-text-tertiary">
-        <p>Created by Azamat Altymyshev</p>
+      <footer className="mt-16 border-t border-border/30 py-6 text-center">
+        <p className="text-xs text-text-tertiary">
+          Built by{" "}
+          <span className="font-medium text-text-secondary">
+            Azamat Altymyshev
+          </span>
+        </p>
       </footer>
 
       <Toast toast={toast} />

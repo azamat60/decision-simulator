@@ -16,17 +16,17 @@ export const SegmentedControl = <T extends string>({
   onChange,
   options,
 }: Props<T>) => (
-  <div className="flex w-full rounded-xl border border-border bg-surface/50 p-1 shadow-inner">
+  <div className="flex w-full rounded-xl border border-border/70 bg-bg/60 p-1 gap-0.5">
     {options.map((option) => (
       <button
         key={option.value}
         type="button"
         onClick={() => onChange(option.value)}
         className={cn(
-          "flex-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200",
+          "flex-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all duration-200",
           value === option.value
-            ? "bg-gradient-to-br from-primary to-accent text-white shadow-sm scale-[1.02]"
-            : "text-text-secondary hover:bg-surface hover:text-text",
+            ? "bg-gradient-to-br from-primary to-accent text-white shadow-md shadow-primary/20"
+            : "text-text-tertiary hover:bg-surface/80 hover:text-text-secondary",
         )}
       >
         {option.label}

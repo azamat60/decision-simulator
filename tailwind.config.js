@@ -30,8 +30,17 @@ export default {
         positive: "hsl(var(--success) / <alpha-value>)",
         negative: "hsl(var(--destructive) / <alpha-value>)",
       },
+      fontFamily: {
+        space: ["Space Grotesk", "sans-serif"],
+        outfit: ["Outfit", "sans-serif"],
+      },
       boxShadow: {
         soft: "0 10px 30px rgba(0, 0, 0, 0.15)",
+        glow: "0 0 24px hsla(217, 91%, 60%, 0.25)",
+        "glow-success": "0 0 20px hsla(142, 71%, 55%, 0.25)",
+        "glow-destructive": "0 0 20px hsla(0, 84%, 70%, 0.25)",
+        "glow-accent": "0 0 20px hsla(262, 83%, 65%, 0.25)",
+        "card-hover": "0 8px 32px rgba(0, 0, 0, 0.2)",
       },
       borderRadius: {
         "2xl": "1rem",

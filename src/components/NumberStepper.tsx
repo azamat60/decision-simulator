@@ -27,41 +27,37 @@ export const NumberStepper = ({
       <span className="text-sm font-medium text-text-secondary transition-colors group-hover:text-text">
         {label}
       </span>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
         <button
           type="button"
           onClick={() => update(value - step)}
-          className="rounded-xl border border-border bg-surface p-2.5 text-text-secondary transition-all hover:border-primary/30 hover:bg-primary/5 hover:text-primary active:scale-95 disabled:opacity-50"
           disabled={value <= min}
           aria-label={`Decrease ${label}`}
+          className="h-9 w-9 flex items-center justify-center rounded-xl border border-border/70 bg-surface/60 text-text-tertiary transition-all hover:border-primary/40 hover:bg-primary/8 hover:text-primary active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          <Minus size={16} />
+          <Minus size={14} />
         </button>
-        <div className="relative flex-1">
-          <input
-            className="w-full rounded-xl border border-border bg-surface/50 px-3 py-2 text-center text-text font-medium shadow-sm transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
-            type="number"
-            aria-label={label}
-            value={value}
-            onChange={(event) => update(Number(event.target.value))}
-            min={min}
-            max={max}
-            step={step}
-          />
-        </div>
+        <input
+          className="h-9 flex-1 rounded-xl border border-border/70 bg-surface/60 px-3 py-2 text-center text-sm font-semibold tabular-nums text-text shadow-sm transition-all focus:border-primary/60 focus:ring-2 focus:ring-primary/15 focus:outline-none"
+          type="number"
+          aria-label={label}
+          value={value}
+          onChange={(e) => update(Number(e.target.value))}
+          min={min}
+          max={max}
+          step={step}
+        />
         <button
           type="button"
           onClick={() => update(value + step)}
-          className="rounded-xl border border-border bg-surface p-2.5 text-text-secondary transition-all hover:border-primary/30 hover:bg-primary/5 hover:text-primary active:scale-95 disabled:opacity-50"
           disabled={value >= max}
           aria-label={`Increase ${label}`}
+          className="h-9 w-9 flex items-center justify-center rounded-xl border border-border/70 bg-surface/60 text-text-tertiary transition-all hover:border-primary/40 hover:bg-primary/8 hover:text-primary active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          <Plus size={16} />
+          <Plus size={14} />
         </button>
       </div>
-      {helpText ? (
-        <p className="text-xs text-text-tertiary">{helpText}</p>
-      ) : null}
+      {helpText && <p className="text-xs text-text-tertiary">{helpText}</p>}
     </label>
   );
 };
